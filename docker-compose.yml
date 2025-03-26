@@ -20,6 +20,28 @@ services:
       - parking_network
     restart: unless-stopped
 
+  registry:
+    image: registry:2
+    container_name: parking_registry
+    ports:
+      - "5000:5000"
+    environment:
+      - REGISTRY_AUTH=htpasswd
+      - REGISTRY_AUTH_HTPASSWD_REALM=Registry
+      - REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd
+    volumes:
+      - /home/automation/registry/auth:/auth
+      - /home/automation/registry/data:/var/lib/registry
+    networks:
+      - parking_network
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.registry.rule=Host(`registry.parkers.com`)"
+      - "traefik.http.routers.registry.entrypoints=websecure"
+      - "traefik.http.routers.registry.tls=true"
+      - "traefik.http.services.registry.loadbalancer.server.port=5000"
+
   gate-service:
     image: localhost:5000/parkers/gate-service:latest
     build:
@@ -29,8 +51,6 @@ services:
     networks:
       - parking_network
     restart: unless-stopped
-    depends_on:
-      - parking-db
     env_file:
       - /home/automation/platform/.env
     labels:
@@ -42,7 +62,7 @@ services:
   ocr-service:
     image: localhost:5000/parkers/ocr-service:latest
     build:
-      context: ./ocr-service
+      context: /home/automation/ocr-service
       dockerfile: Dockerfile
     container_name: parking_ocr_service
     env_file:
@@ -59,14 +79,12 @@ services:
   parking-spot-tracker:
     image: localhost:5000/parkers/parking-spot-tracker:latest
     build:
-      context: ./parking-spot-tracker
+      context: /home/automation/parking-spot-tracker
       dockerfile: Dockerfile
     container_name: parking_spot_tracker
     networks:
       - parking_network
     restart: unless-stopped
-    depends_on:
-      - parking-db
     env_file:
       - /home/automation/platform/.env
     labels:
@@ -78,14 +96,12 @@ services:
   payment-service:
     image: localhost:5000/parkers/payment-service:latest
     build:
-      context: ./payment-service
+      context: /home/automation/payment-service
       dockerfile: Dockerfile
     container_name: parking_payment_service
     networks:
       - parking_network
     restart: unless-stopped
-    depends_on:
-      - parking-db
     env_file:
       - /home/automation/platform/.env
     labels:
@@ -97,14 +113,12 @@ services:
   user-service:
     image: localhost:5000/parkers/user-service:latest
     build:
-      context: ./user-service
+      context: /home/automation/user-service
       dockerfile: Dockerfile
     container_name: parking_user_service
     networks:
       - parking_network
     restart: unless-stopped
-    depends_on:
-      - parking-db
     env_file:
       - /home/automation/platform/.env
     labels:
@@ -113,20 +127,6 @@ services:
       - "traefik.http.routers.user-service.entrypoints=web"
       - "traefik.http.services.user-service.loadbalancer.server.port=8000"
 
-  parking-db:
-    image: postgres:16
-    container_name: parking_db
-    restart: unless-stopped
-    env_file:
-      - /home/automation/platform/.env
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - parking_network
-
 networks:
   parking_network:
     driver: bridge
-
-volumes:
-  postgres_data:
