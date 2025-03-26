@@ -1,3 +1,4 @@
+CREATE DATABASE parking_db;
 DROP TABLE IF EXISTS payment_transactions;
 DROP TABLE IF EXISTS parking_sessions;
 
