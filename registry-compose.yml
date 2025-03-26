@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  registry:
+    image: registry:2
+    container_name: parking_registry
+    ports:
+      - "5000:5000"
+    environment:
+      - REGISTRY_AUTH=htpasswd
+      - REGISTRY_AUTH_HTPASSWD_REALM=Registry
+      - REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd
+    volumes:
+      - /home/automation/registry/auth:/auth
+      - /home/automation/registry/data:/var/lib/registry
+    networks:
+      - parking_network
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.registry.rule=Host(`registry.parkers.com`)"
+      - "traefik.http.routers.registry.entrypoints=websecure"
+      - "traefik.http.routers.registry.tls=true"
+      - "traefik.http.services.registry.loadbalancer.server.port=5000"
+
+networks:
+  parking_network:
+    external: true

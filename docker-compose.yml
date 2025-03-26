@@ -1,9 +1,9 @@
 version: '3.8'
 
 services:
-  gateway:
+  traefik:
     image: localhost:5000/parkers/traefik:latest
-    container_name: parking_gateway
+    container_name: parking_traefik
     command:
       - "--api.insecure=true"
       - "--providers.docker=true"
@@ -19,28 +19,6 @@ services:
     networks:
       - parking_network
     restart: unless-stopped
-
-  registry:
-    image: registry:2
-    container_name: parking_registry
-    ports:
-      - "5000:5000"
-    environment:
-      - REGISTRY_AUTH=htpasswd
-      - REGISTRY_AUTH_HTPASSWD_REALM=Registry
-      - REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd
-    volumes:
-      - /home/automation/registry/auth:/auth
-      - /home/automation/registry/data:/var/lib/registry
-    networks:
-      - parking_network
-    restart: unless-stopped
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.registry.rule=Host(`registry.parkers.com`)"
-      - "traefik.http.routers.registry.entrypoints=websecure"
-      - "traefik.http.routers.registry.tls=true"
-      - "traefik.http.services.registry.loadbalancer.server.port=5000"
 
   gate-service:
     image: localhost:5000/parkers/gate-service:latest
