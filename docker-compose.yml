@@ -8,16 +8,23 @@ services:
       - "--api.insecure=true"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
-      - "--entrypoints.web.address=:80"
+      - "--entrypoints.traefik-network.address=:80"
       - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=traefik-network"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+      - "--certificatesresolvers.letsencrypt.acme.email=moorenn@tcd.ie"
     ports:
       - "80:80"
       - "443:443"
       - "8080:8080"  # the traefik dashboard
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./letsencrypt:/letsencrypt
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
     networks:
-      - parking_network
+      - traefik-network
     restart: unless-stopped
 
   gate-service:
@@ -27,15 +34,22 @@ services:
       dockerfile: Dockerfile
     container_name: parking_gate_service
     networks:
-      - parking_network
+      - traefik-network
     restart: unless-stopped
     env_file:
       - /home/automation/platform/.env
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=traefik-network"
       - "traefik.http.routers.gate-service.rule=PathPrefix(`/gs`)"
-      - "traefik.http.routers.gate-service.entrypoints=web"
+      - "traefik.http.routers.gate-service.entrypoints=traefik-network"
       - "traefik.http.services.gate-service.loadbalancer.server.port=8000"
+      - "traefik.http.routers.gate-service-secure.rule=PathPrefix(`/gs`)"
+      - "traefik.http.routers.gate-service-secure.entrypoints=websecure"
+      - "traefik.http.routers.gate-service-secure.tls=true"
+      - "traefik.http.routers.gate-service-secure.tls.certresolver=letsencrypt"
+      - "traefik.http.middlewares.redirecthttps.redirectscheme.scheme=https"
+      - "traefik.http.routers.gate-service.middlewares=redirecthttps"
 
   ocr-service:
     image: localhost:5000/parkers/ocr-service:latest
@@ -46,13 +60,19 @@ services:
     env_file:
       - /home/automation/platform/.env
     networks:
-      - parking_network
+      - traefik-network
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.ocr-service.rule=PathPrefix(`/ocr`)"
-      - "traefik.http.routers.ocr-service.entrypoints=web"
+      - "traefik.http.routers.ocr-service.entrypoints=traefik-network"
       - "traefik.http.services.ocr-service.loadbalancer.server.port=7134"
+      - "traefik.http.routers.ocr-service-secure.rule=PathPrefix(`/ocr`)"
+      - "traefik.http.routers.ocr-service-secure.entrypoints=websecure"
+      - "traefik.http.routers.ocr-service-secure.tls=true"
+      - "traefik.http.routers.ocr-service-secure.tls.certresolver=letsencrypt"
+      - "traefik.http.middlewares.redirecthttps.redirectscheme.scheme=https"
+      - "traefik.http.routers.ocr-service.middlewares=redirecthttps"
 
   parking-spot-tracker:
     image: localhost:5000/parkers/parking-spot-tracker:latest
@@ -61,15 +81,21 @@ services:
       dockerfile: Dockerfile
     container_name: parking_spot_tracker
     networks:
-      - parking_network
+      - traefik-network
     restart: unless-stopped
     env_file:
       - /home/automation/platform/.env
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.spot-tracker.rule=PathPrefix(`/pst`)"
-      - "traefik.http.routers.spot-tracker.entrypoints=web"
+      - "traefik.http.routers.spot-tracker.entrypoints=traefik-network"
       - "traefik.http.services.spot-tracker.loadbalancer.server.port=3000"
+      - "traefik.http.routers.spot-service-secure.rule=PathPrefix(`/pst`)"
+      - "traefik.http.routers.spot-service-secure.entrypoints=websecure"
+      - "traefik.http.routers.spot-service-secure.tls=true"
+      - "traefik.http.routers.spot-service-secure.tls.certresolver=letsencrypt"
+      - "traefik.http.middlewares.redirecthttps.redirectscheme.scheme=https"
+      - "traefik.http.routers.spot-service.middlewares=redirecthttps"
 
   payment-service:
     image: localhost:5000/parkers/payment-service:latest
@@ -78,15 +104,21 @@ services:
       dockerfile: Dockerfile
     container_name: parking_payment_service
     networks:
-      - parking_network
+      - traefik-network
     restart: unless-stopped
     env_file:
       - /home/automation/platform/.env
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.payment-service.rule=PathPrefix(`/ps`)"
-      - "traefik.http.routers.payment-service.entrypoints=web"
+      - "traefik.http.routers.payment-service.entrypoints=traefik-network"
       - "traefik.http.services.payment-service.loadbalancer.server.port=8001"
+      - "traefik.http.routers.payment-service-secure.rule=PathPrefix(`/ps`)"
+      - "traefik.http.routers.payment-service-secure.entrypoints=websecure"
+      - "traefik.http.routers.payment-service-secure.tls=true"
+      - "traefik.http.routers.payment-service-secure.tls.certresolver=letsencrypt"
+      - "traefik.http.middlewares.redirecthttps.redirectscheme.scheme=https"
+      - "traefik.http.routers.payment-service.middlewares=redirecthttps"
 
   user-service:
     image: localhost:5000/parkers/user-service:latest
@@ -95,16 +127,22 @@ services:
       dockerfile: Dockerfile
     container_name: parking_user_service
     networks:
-      - parking_network
+      - traefik-network
     restart: unless-stopped
     env_file:
       - /home/automation/platform/.env
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.user-service.rule=PathPrefix(`/us`)"
-      - "traefik.http.routers.user-service.entrypoints=web"
+      - "traefik.http.routers.user-service.entrypoints=traefik-network"
       - "traefik.http.services.user-service.loadbalancer.server.port=8000"
+      - "traefik.http.routers.user-service-secure.rule=PathPrefix(`/us`)"
+      - "traefik.http.routers.user-service-secure.entrypoints=websecure"
+      - "traefik.http.routers.user-service-secure.tls=true"
+      - "traefik.http.routers.user-service-secure.tls.certresolver=letsencrypt"
+      - "traefik.http.middlewares.redirecthttps.redirectscheme.scheme=https"
+      - "traefik.http.routers.user-service.middlewares=redirecthttps"
 
 networks:
-  parking_network:
-    driver: bridge
+  traefik-network:
+    external: true
