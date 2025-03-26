@@ -1,0 +1,132 @@
+version: '3.8'
+
+services:
+  gateway:
+    image: localhost:5000/parkers/traefik:latest
+    container_name: parking_gateway
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"  # the traefik dashboard
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - parking_network
+    restart: unless-stopped
+
+  gate-service:
+    image: localhost:5000/parkers/gate-service:latest
+    build:
+      context: /home/automation/gate-service
+      dockerfile: Dockerfile
+    container_name: parking_gate_service
+    networks:
+      - parking_network
+    restart: unless-stopped
+    depends_on:
+      - parking-db
+    env_file:
+      - /home/automation/platform/.env
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.gate-service.rule=PathPrefix(`/gate`)"
+      - "traefik.http.routers.gate-service.entrypoints=web"
+      - "traefik.http.services.gate-service.loadbalancer.server.port=8000"
+
+  ocr-service:
+    image: localhost:5000/parkers/ocr-service:latest
+    build:
+      context: ./ocr-service
+      dockerfile: Dockerfile
+    container_name: parking_ocr_service
+    env_file:
+      - /home/automation/platform/.env
+    networks:
+      - parking_network
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ocr-service.rule=PathPrefix(`/ocr`)"
+      - "traefik.http.routers.ocr-service.entrypoints=web"
+      - "traefik.http.services.ocr-service.loadbalancer.server.port=7134"
+
+  parking-spot-tracker:
+    image: localhost:5000/parkers/parking-spot-tracker:latest
+    build:
+      context: ./parking-spot-tracker
+      dockerfile: Dockerfile
+    container_name: parking_spot_tracker
+    networks:
+      - parking_network
+    restart: unless-stopped
+    depends_on:
+      - parking-db
+    env_file:
+      - /home/automation/platform/.env
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.spot-tracker.rule=PathPrefix(`/spots`)"
+      - "traefik.http.routers.spot-tracker.entrypoints=web"
+      - "traefik.http.services.spot-tracker.loadbalancer.server.port=3000"
+
+  payment-service:
+    image: localhost:5000/parkers/payment-service:latest
+    build:
+      context: ./payment-service
+      dockerfile: Dockerfile
+    container_name: parking_payment_service
+    networks:
+      - parking_network
+    restart: unless-stopped
+    depends_on:
+      - parking-db
+    env_file:
+      - /home/automation/platform/.env
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.payment-service.rule=PathPrefix(`/payment`)"
+      - "traefik.http.routers.payment-service.entrypoints=web"
+      - "traefik.http.services.payment-service.loadbalancer.server.port=8001"
+
+  user-service:
+    image: localhost:5000/parkers/user-service:latest
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+    container_name: parking_user_service
+    networks:
+      - parking_network
+    restart: unless-stopped
+    depends_on:
+      - parking-db
+    env_file:
+      - /home/automation/platform/.env
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.user-service.rule=PathPrefix(`/users`)"
+      - "traefik.http.routers.user-service.entrypoints=web"
+      - "traefik.http.services.user-service.loadbalancer.server.port=8000"
+
+  parking-db:
+    image: postgres:16
+    container_name: parking_db
+    restart: unless-stopped
+    env_file:
+      - /home/automation/platform/.env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - parking_network
+
+networks:
+  parking_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
