@@ -30,12 +30,11 @@ services:
   postgres:
     image: postgres:15
     container_name: parking_postgres
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=park1ngautomat3r5ftw
-      - POSTGRES_DB=parking_db
+    env_file:
+      - /home/automation/platform/.env
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - traefik-network
       - postgres-network
@@ -49,6 +48,8 @@ services:
       context: /home/automation/gate-service
       dockerfile: Dockerfile
     container_name: parking_gate_service
+    depends_on:
+      - postgres
     networks:
       - traefik-network
       - postgres-network
@@ -120,6 +121,8 @@ services:
       context: /home/automation/payment-service
       dockerfile: Dockerfile
     container_name: parking_payment_service
+    depends_on:
+      - postgres
     networks:
       - traefik-network
       - postgres-network
