@@ -33,7 +33,7 @@ services:
       - /home/automation/platform/.env
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.gate-service.rule=PathPrefix(`/`)"
+      - "traefik.http.routers.gate-service.rule=PathPrefix(`/gs`)"
       - "traefik.http.routers.gate-service.entrypoints=web"
       - "traefik.http.services.gate-service.loadbalancer.server.port=8000"
 
@@ -50,7 +50,7 @@ services:
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.ocr-service.rule=PathPrefix(`/`)"
+      - "traefik.http.routers.ocr-service.rule=PathPrefix(`/ocr`)"
       - "traefik.http.routers.ocr-service.entrypoints=web"
       - "traefik.http.services.ocr-service.loadbalancer.server.port=7134"
 
@@ -67,7 +67,7 @@ services:
       - /home/automation/platform/.env
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.spot-tracker.rule=PathPrefix(`/`)"
+      - "traefik.http.routers.spot-tracker.rule=PathPrefix(`/pst`)"
       - "traefik.http.routers.spot-tracker.entrypoints=web"
       - "traefik.http.services.spot-tracker.loadbalancer.server.port=3000"
 
@@ -84,7 +84,7 @@ services:
       - /home/automation/platform/.env
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.payment-service.rule=PathPrefix(`/`)"
+      - "traefik.http.routers.payment-service.rule=PathPrefix(`/ps`)"
       - "traefik.http.routers.payment-service.entrypoints=web"
       - "traefik.http.services.payment-service.loadbalancer.server.port=8001"
 
@@ -101,7 +101,7 @@ services:
       - /home/automation/platform/.env
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.user-service.rule=PathPrefix(`/`)"
+      - "traefik.http.routers.user-service.rule=PathPrefix(`/us`)"
       - "traefik.http.routers.user-service.entrypoints=web"
       - "traefik.http.services.user-service.loadbalancer.server.port=8000"
 
