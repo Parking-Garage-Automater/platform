@@ -31,10 +31,10 @@ services:
     image: postgres:15
     container_name: parking_postgres
     ports:
-      - '5431:5432'
+      - '5432:5432'
     environment:
       - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_PASSWORD=123parkers!987
       - POSTGRES_DB=parking_db
     volumes:
       - postgres_data:/var/lib/postgresql/data
@@ -161,7 +161,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.user-service.rule=PathPrefix(`/us`)"
       - "traefik.http.routers.user-service.entrypoints=traefik-network"
-      - "traefik.http.services.user-service.loadbalancer.server.port=8000"
+      - "traefik.http.services.user-service.loadbalancer.server.port=9001"
       - "traefik.http.routers.user-service-secure.rule=PathPrefix(`/us`)"
       - "traefik.http.routers.user-service-secure.entrypoints=websecure"
       - "traefik.http.routers.user-service-secure.tls=true"
