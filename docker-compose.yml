@@ -72,6 +72,13 @@ services:
       - "traefik.http.routers.gate-service-secure.tls.certresolver=letsencrypt"
       - "traefik.http.services.gate-service.loadbalancer.server.port=8000"
 
+      - "traefik.http.middlewares.cors.headers.accessControlAllowMethods=GET,OPTIONS,PUT,POST,DELETE,PATCH"
+      - "traefik.http.middlewares.cors.headers.accessControlAllowHeaders=Content-Type,Authorization,X-Requested-With"
+      - "traefik.http.middlewares.cors.headers.accessControlAllowOriginList=*"
+      - "traefik.http.middlewares.cors.headers.accessControlMaxAge=100"
+      - "traefik.http.middlewares.cors.headers.addVaryHeader=true"
+      - "traefik.http.routers.gate-service.middlewares=cors"
+
   ocr-service:
     image: localhost:5000/parkers/ocr-service:latest
     build:
@@ -94,6 +101,13 @@ services:
       - "traefik.http.routers.ocr-service-secure.tls.certresolver=letsencrypt"
       - "traefik.http.services.ocr-service.loadbalancer.server.port=7134"
 
+      - "traefik.http.middlewares.cors.headers.accessControlAllowMethods=GET,OPTIONS,PUT,POST,DELETE,PATCH"
+      - "traefik.http.middlewares.cors.headers.accessControlAllowHeaders=Content-Type,Authorization,X-Requested-With"
+      - "traefik.http.middlewares.cors.headers.accessControlAllowOriginList=*"
+      - "traefik.http.middlewares.cors.headers.accessControlMaxAge=100"
+      - "traefik.http.middlewares.cors.headers.addVaryHeader=true"
+      - "traefik.http.routers.ocr-service.middlewares=cors"
+
   parking-spot-tracker:
     image: localhost:5000/parkers/parking-spot-tracker:latest
     build:
@@ -115,6 +129,13 @@ services:
       - "traefik.http.routers.spot-tracker-secure.tls=true"
       - "traefik.http.routers.spot-tracker-secure.tls.certresolver=letsencrypt"
       - "traefik.http.services.spot-tracker.loadbalancer.server.port=3000"
+
+      - "traefik.http.middlewares.cors.headers.accessControlAllowMethods=GET,OPTIONS,PUT,POST,DELETE,PATCH"
+      - "traefik.http.middlewares.cors.headers.accessControlAllowHeaders=Content-Type,Authorization,X-Requested-With"
+      - "traefik.http.middlewares.cors.headers.accessControlAllowOriginList=*"
+      - "traefik.http.middlewares.cors.headers.accessControlMaxAge=100"
+      - "traefik.http.middlewares.cors.headers.addVaryHeader=true"
+      - "traefik.http.routers.spot-tracker.middlewares=cors"
 
   payment-service:
     image: localhost:5000/parkers/payment-service:latest
@@ -141,6 +162,13 @@ services:
       - "traefik.http.routers.payment-service-secure.tls.certresolver=letsencrypt"
       - "traefik.http.services.payment-service.loadbalancer.server.port=8001"
 
+      - "traefik.http.middlewares.cors.headers.accessControlAllowMethods=GET,OPTIONS,PUT,POST,DELETE,PATCH"
+      - "traefik.http.middlewares.cors.headers.accessControlAllowHeaders=Content-Type,Authorization,X-Requested-With"
+      - "traefik.http.middlewares.cors.headers.accessControlAllowOriginList=*"
+      - "traefik.http.middlewares.cors.headers.accessControlMaxAge=100"
+      - "traefik.http.middlewares.cors.headers.addVaryHeader=true"
+      - "traefik.http.routers.payment-service.middlewares=cors"
+
   user-service:
     image: localhost:5000/parkers/user-service:latest
     build:
@@ -163,6 +191,13 @@ services:
       - "traefik.http.routers.user-service-secure.tls=true"
       - "traefik.http.routers.user-service-secure.tls.certresolver=letsencrypt"
       - "traefik.http.services.user-service.loadbalancer.server.port=9001"
+
+      - "traefik.http.middlewares.cors.headers.accessControlAllowMethods=GET,OPTIONS,PUT,POST,DELETE,PATCH"
+      - "traefik.http.middlewares.cors.headers.accessControlAllowHeaders=Content-Type,Authorization,X-Requested-With"
+      - "traefik.http.middlewares.cors.headers.accessControlAllowOriginList=*"
+      - "traefik.http.middlewares.cors.headers.accessControlMaxAge=100"
+      - "traefik.http.middlewares.cors.headers.addVaryHeader=true"
+      - "traefik.http.routers.user-service.middlewares=cors"
 
 networks:
   traefik-network:
