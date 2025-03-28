@@ -15,12 +15,6 @@ services:
       - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=traefik-network"
       - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
       - "--certificatesresolvers.letsencrypt.acme.email=moorenn@tcd.ie"
-    labels:
-      - "traefik.http.middlewares.cors.headers.accessControlAllowOrigin=*"
-      - "traefik.http.middlewares.cors.headers.accessControlMaxAge=100" 
-      - "traefik.http.middlewares.cors.headers.accessControlAllowMethods=GET,OPTIONS,PUT,POST,DELETE,PATCH"
-      - "traefik.http.middlewares.cors.headers.accessControlAllowHeaders=Content-Type,Authorization,X-Requested-With"
-      - "traefik.http.middlewares.cors.headers.addVaryHeader=true"
     ports:
       - "80:80"
       - "443:443"
@@ -114,9 +108,9 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=traefik-network"
-      - "traefik.http.routers.spot-tracker.rule=PathPrefix(`/pst`)"
+      - "traefik.http.routers.spot-tracker.rule=PathPrefix(`/pt`)"
       - "traefik.http.routers.spot-tracker.entrypoints=traefik-network"
-      - "traefik.http.routers.spot-tracker-secure.rule=PathPrefix(`/pst`)"
+      - "traefik.http.routers.spot-tracker-secure.rule=PathPrefix(`/pt`)"
       - "traefik.http.routers.spot-tracker-secure.entrypoints=websecure"
       - "traefik.http.routers.spot-tracker-secure.tls=true"
       - "traefik.http.routers.spot-tracker-secure.tls.certresolver=letsencrypt"
