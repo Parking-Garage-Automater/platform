@@ -78,6 +78,7 @@ services:
       - "traefik.http.routers.gate-service-secure.entrypoints=websecure"
       - "traefik.http.routers.gate-service-secure.tls=true"
       - "traefik.http.routers.gate-service-secure.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.gate-service.middlewares=redirecthttps"
       - "traefik.http.services.gate-service.loadbalancer.server.port=8000"
 
   ocr-service:
@@ -93,13 +94,15 @@ services:
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=traefik-network"
       - "traefik.http.routers.ocr-service.rule=PathPrefix(`/ocr`)"
       - "traefik.http.routers.ocr-service.entrypoints=traefik-network"
-      - "traefik.http.services.ocr-service.loadbalancer.server.port=7134"
       - "traefik.http.routers.ocr-service-secure.rule=PathPrefix(`/ocr`)"
       - "traefik.http.routers.ocr-service-secure.entrypoints=websecure"
       - "traefik.http.routers.ocr-service-secure.tls=true"
       - "traefik.http.routers.ocr-service-secure.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.ocr-service.middlewares=redirecthttps"
+      - "traefik.http.services.ocr-service.loadbalancer.server.port=7134"
 
   parking-spot-tracker:
     image: localhost:5000/parkers/parking-spot-tracker:latest
@@ -114,13 +117,15 @@ services:
       - /home/automation/platform/.env
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=traefik-network"
       - "traefik.http.routers.spot-tracker.rule=PathPrefix(`/pst`)"
       - "traefik.http.routers.spot-tracker.entrypoints=traefik-network"
-      - "traefik.http.services.spot-tracker.loadbalancer.server.port=3000"
       - "traefik.http.routers.spot-tracker-secure.rule=PathPrefix(`/pst`)"
       - "traefik.http.routers.spot-tracker-secure.entrypoints=websecure"
       - "traefik.http.routers.spot-tracker-secure.tls=true"
       - "traefik.http.routers.spot-tracker-secure.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.spot-tracker.middlewares=redirecthttps"
+      - "traefik.http.services.spot-tracker.loadbalancer.server.port=3000"
 
   payment-service:
     image: localhost:5000/parkers/payment-service:latest
@@ -138,13 +143,15 @@ services:
       - /home/automation/platform/.env
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=traefik-network"
       - "traefik.http.routers.payment-service.rule=PathPrefix(`/ps`)"
       - "traefik.http.routers.payment-service.entrypoints=traefik-network"
-      - "traefik.http.services.payment-service.loadbalancer.server.port=8001"
       - "traefik.http.routers.payment-service-secure.rule=PathPrefix(`/ps`)"
       - "traefik.http.routers.payment-service-secure.entrypoints=websecure"
       - "traefik.http.routers.payment-service-secure.tls=true"
       - "traefik.http.routers.payment-service-secure.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.payment-service.middlewares=redirecthttps"
+      - "traefik.http.services.payment-service.loadbalancer.server.port=8001"
 
   user-service:
     image: localhost:5000/parkers/user-service:latest
@@ -160,13 +167,15 @@ services:
       - /home/automation/platform/.env
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=traefik-network"
       - "traefik.http.routers.user-service.rule=PathPrefix(`/us`)"
       - "traefik.http.routers.user-service.entrypoints=traefik-network"
-      - "traefik.http.services.user-service.loadbalancer.server.port=9001"
       - "traefik.http.routers.user-service-secure.rule=PathPrefix(`/us`)"
       - "traefik.http.routers.user-service-secure.entrypoints=websecure"
       - "traefik.http.routers.user-service-secure.tls=true"
       - "traefik.http.routers.user-service-secure.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.user-service.middlewares=redirecthttps"
+      - "traefik.http.services.user-service.loadbalancer.server.port=9001"
 
 networks:
   traefik-network:
