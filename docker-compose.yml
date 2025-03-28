@@ -21,8 +21,6 @@ services:
       - "traefik.http.middlewares.cors.headers.accessControlAllowMethods=GET,OPTIONS,PUT,POST,DELETE,PATCH"
       - "traefik.http.middlewares.cors.headers.accessControlAllowHeaders=Content-Type,Authorization,X-Requested-With"
       - "traefik.http.middlewares.cors.headers.addVaryHeader=true"
-      - "traefik.http.middlewares.redirecthttps.redirectscheme.scheme=https"
-      - "traefik.http.middlewares.redirecthttps.redirectscheme.permanent=true"
     ports:
       - "80:80"
       - "443:443"
@@ -78,7 +76,6 @@ services:
       - "traefik.http.routers.gate-service-secure.entrypoints=websecure"
       - "traefik.http.routers.gate-service-secure.tls=true"
       - "traefik.http.routers.gate-service-secure.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.gate-service.middlewares=redirecthttps"
       - "traefik.http.services.gate-service.loadbalancer.server.port=8000"
 
   ocr-service:
@@ -101,7 +98,6 @@ services:
       - "traefik.http.routers.ocr-service-secure.entrypoints=websecure"
       - "traefik.http.routers.ocr-service-secure.tls=true"
       - "traefik.http.routers.ocr-service-secure.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.ocr-service.middlewares=redirecthttps"
       - "traefik.http.services.ocr-service.loadbalancer.server.port=7134"
 
   parking-spot-tracker:
@@ -124,7 +120,6 @@ services:
       - "traefik.http.routers.spot-tracker-secure.entrypoints=websecure"
       - "traefik.http.routers.spot-tracker-secure.tls=true"
       - "traefik.http.routers.spot-tracker-secure.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.spot-tracker.middlewares=redirecthttps"
       - "traefik.http.services.spot-tracker.loadbalancer.server.port=3000"
 
   payment-service:
@@ -150,7 +145,6 @@ services:
       - "traefik.http.routers.payment-service-secure.entrypoints=websecure"
       - "traefik.http.routers.payment-service-secure.tls=true"
       - "traefik.http.routers.payment-service-secure.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.payment-service.middlewares=redirecthttps"
       - "traefik.http.services.payment-service.loadbalancer.server.port=8001"
 
   user-service:
@@ -174,7 +168,6 @@ services:
       - "traefik.http.routers.user-service-secure.entrypoints=websecure"
       - "traefik.http.routers.user-service-secure.tls=true"
       - "traefik.http.routers.user-service-secure.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.user-service.middlewares=redirecthttps"
       - "traefik.http.services.user-service.loadbalancer.server.port=9001"
 
 networks:
