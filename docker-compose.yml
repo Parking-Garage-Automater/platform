@@ -47,6 +47,25 @@ services:
     labels:
       - "traefik.enable=false"
 
+  mqtt-broker:
+    image: eclipse-mosquitto:latest
+    container_name: parking_mqtt_broker
+    ports:
+      - '1883:1883'
+      - '8883:8883'
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+    env_file:
+      - /home/automation/platform/.env
+    networks:
+      - traefik-network
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-network"
+
   gate-service:
     image: localhost:5000/parkers/gate-service:latest
     build:
