@@ -78,6 +78,8 @@ services:
       - traefik-network
       - postgres-network
     restart: unless-stopped
+    volumes:
+      - /home/automation/platform/mosquitto/config/certs:/app/mqtt
     env_file:
       - /home/automation/platform/.env
     labels:
