@@ -79,7 +79,9 @@ services:
       - postgres-network
     restart: unless-stopped
     volumes:
-      - /home/automation/platform/mosquitto/config/certs:/app/mqtt
+      - /home/automation/platform/mosquitto/config/certs/ca/certs/ca.crt:/app/app/mqtt/iot_mqtt_ca.crt
+      - /home/automation/platform/mosquitto/config/certs/client/client.crt:/app/app/mqtt/iot_mqtt_client.crt
+      - /home/automation/platform/mosquitto/config/certs/client/client.key:/app/app/mqtt/iot_mqtt_client.key
     env_file:
       - /home/automation/platform/.env
     labels:
@@ -219,6 +221,29 @@ services:
       - "traefik.http.middlewares.cors.headers.accessControlMaxAge=100"
       - "traefik.http.middlewares.cors.headers.addVaryHeader=true"
       - "traefik.http.routers.user-service.middlewares=cors"
+
+  frontend:
+    image: localhost:5000/parkers/frontend:latest
+    build:
+      context: /home/automation/front-end
+      dockerfile: Dockerfile
+    container_name: parking_frontend
+    networks:
+      - traefik-network
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-network"
+      - "traefik.http.routers.frontend.rule=PathPrefix(`/`)"
+      - "traefik.http.routers.frontend.entrypoints=traefik-network"
+      - "traefik.http.routers.frontend-secure.rule=PathPrefix(`/`)"
+      - "traefik.http.routers.frontend-secure.entrypoints=websecure"
+      - "traefik.http.routers.frontend-secure.tls=true"
+      - "traefik.http.routers.frontend-secure.tls.certresolver=letsencrypt"
+      - "traefik.http.services.frontend.loadbalancer.server.port=3001"
+
 
 networks:
   traefik-network:
